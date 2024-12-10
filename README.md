@@ -22,5 +22,5 @@ To run this project, you'll need the following:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/cat-vs-dog-classifier.git
-   cd cat-vs-dog-classifier
+   git clone https://github.com/axelgunnarsson2004/CatvsDog
+   cd CatvsDog
