@@ -1,7 +1,9 @@
 package numsca 
 import scala.util.Random
-
-
+import java.awt.{Color, Graphics2D}
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
+import java.io.File
 
 class Matrix(val rows: Int, val cols: Int, val elements: Array[Array[Double]]){
   val shape = (rows,cols)
@@ -158,9 +160,44 @@ class Matrix(val rows: Int, val cols: Int, val elements: Array[Array[Double]]){
       for j <- 0 until cols do
         result(j,i) = this(i,j)
     result
+  
+  def plot(output: String): Unit = {
+    // Check if the matrix has 12288 elements (64x64 image with 3 channels)
+    if (rows != 12288 || cols != 1) {
+      throw new IllegalArgumentException("Matrix must have shape (12288, 1) to be plotted as an RGB image.")
+    }
 
+    // Define the image size (64x64) and create a BufferedImage
+    val imgWidth = 64
+    val imgHeight = 64
+    val img = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_RGB)
 
-  def stringMatrix:String  = 
+    // Unnormalize the matrix elements and map them back to RGB values
+    var idx = 0
+    for (y <- 0 until imgHeight) {
+      for (x <- 0 until imgWidth) {
+        // Extract RGB values from the matrix (normalized between 0 and 1, so scale them to [0, 255])
+        val red = (elements(idx)(0) * 255).toInt
+        val green = (elements(idx + 1)(0) * 255).toInt
+        val blue = (elements(idx + 2)(0) * 255).toInt
+        idx += 3
+
+        // Create a new Color from RGB values
+        val color = new Color(red, green, blue)
+
+        // Set the color for the pixel in the BufferedImage
+        img.setRGB(x, y, color.getRGB)
+      }
+    }
+    
+    // Save the image as a .jpg file
+    val file = new File(output)
+    ImageIO.write(img, "jpg", file)
+
+    println(s"Image saved as $output")
+  }
+
+   def stringMatrix:String  = 
     var s = "\n"
     for i <- 0 until rows do 
       for j <- 0 until cols do

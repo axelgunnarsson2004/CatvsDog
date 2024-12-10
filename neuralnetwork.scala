@@ -1,7 +1,12 @@
+package NN 
+
+
+
 import numsca.Matrix
 import utils.Utils
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable 
+import scala.Tuple
 
 case class LinearCache(A: Matrix,W: Matrix, b:Matrix)
 case class ActivationCache(A: Matrix, linear_cache: LinearCache)
@@ -133,25 +138,34 @@ object NN{
       parameters(f"W${l+1}") = parameters(f"W${l+1}") - grads(f"dW${l+1}") * learning_rate
       parameters(f"b${l+1}") = parameters(f"b${l+1}") - grads(f"db${l+1}") * learning_rate
     parameters
+  
+  def fit(parameters:mutable.Map[String,Matrix], X: Matrix, Y: Matrix, iterations: Int=20, learning_rate: Double = 0.01): mutable.Map[String,Matrix] =
+    var params = parameters
+    for iteration <- 1 to 10000 do 
+      val temp = L_model_forward(X,params)
+      var AL = temp._1
+      var caches =  temp._2
+      var grads = L_model_backward(AL,Y,caches)
+      params = update_parameters(params,grads,learning_rate)
+      // if iteration % 100 == 0 then 
+      println(f"Iteration : $iteration, Cost = ${compute_cost(AL,Y).toString}")
+    params
+  
+  def predict(X: Matrix, parameters: mutable.Map[String,Matrix]): Double = 
+    var temp = NN.L_model_forward(X,parameters) 
+    temp._1(0,0).toDouble
 }
 
-val m = 1
+val m = 10
 val inputX = 3
 
 var params = NN.initialize_parameters_deep(inputX,4,1)
 var X = Matrix.randomMatrix(inputX,m)
 var Y = Matrix(1,m)  
+//
+// params = NN.fit(params,X,Y)
+// NN.predict(X,params)
 
 
-def run = 
-  for iteration <- 1 to 100 do 
-    val temp = NN.L_model_forward(X,params)
-    var AL = temp._1
-    var caches =  temp._2
-    var grads = NN.L_model_backward(AL,Y,caches)
-    params = NN.update_parameters(params,grads,0.01)
-    if iteration % 100 == 0 then 
-      println(iteration)
-  
-  var temp = NN.L_model_forward(X,params) 
-  println(f"Final Guess is ${temp._1}")
+
+
